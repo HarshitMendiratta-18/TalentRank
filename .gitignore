@@ -1,0 +1,23 @@
+# Large data files
+*candidates.jsonl
+*.zip
+*.csv
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local development files
+.env
+.ipynb_checkpoints/
+scratch/
+check_imports.py
+check_founded.py
+explore_*.py
+validate_candidates_schema.py
+print_anomalies.py
+output.txt
+anomalies.json
+schema_violations.json
+deploy_hf.py

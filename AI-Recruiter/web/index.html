@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalentRank AI // Recruiter Workspace</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glow-bg">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
+    <header>
+        <div class="logo">
+            <i class="fa-solid fa-bolt logo-icon"></i>
+            <span>TALENT<span class="highlight">RANK</span></span>
+            <span class="badge">PoC Engine v1.0</span>
+        </div>
+        <div class="system-status">
+            <span class="status-indicator online"></span>
+            <span class="status-text">FastAPI Backend Active</span>
+        </div>
+    </header>
+
+    <main class="dashboard-grid">
+        <!-- Control Panel (Left Column) -->
+        <section class="control-panel glass-panel">
+            <div class="section-header">
+                <i class="fa-solid fa-sliders header-icon"></i>
+                <h2>Workspace Controls</h2>
+            </div>
+
+            <!-- Job Description Input -->
+            <div class="input-group">
+                <label for="jd-input">Job Description / Requirements</label>
+                <textarea id="jd-input" placeholder="Paste your JD here... e.g. Build scalable ML pipelines using Python, cloud infrastructure, and deep learning frameworks. Core skills: embeddings, vector databases, Pinecone, FAISS, NDCG evaluation..."></textarea>
+            </div>
+
+            <!-- Weight Configurations -->
+            <div class="weights-panel">
+                <label>Signal Weights Adjuster</label>
+                <div class="weight-item">
+                    <div class="weight-label">
+                        <span>Semantic Similarity</span>
+                        <span id="val-semantic">30%</span>
+                    </div>
+                    <input type="range" id="weight-semantic" min="0" max="100" value="30" class="weight-slider">
+                </div>
+                <div class="weight-item">
+                    <div class="weight-label">
+                        <span>Skill Match</span>
+                        <span id="val-skills">25%</span>
+                    </div>
+                    <input type="range" id="weight-skills" min="0" max="100" value="25" class="weight-slider">
+                </div>
+                <div class="weight-item">
+                    <div class="weight-label">
+                        <span>Experience Match</span>
+                        <span id="val-experience">15%</span>
+                    </div>
+                    <input type="range" id="weight-experience" min="0" max="100" value="15" class="weight-slider">
+                </div>
+                <div class="weight-item">
+                    <div class="weight-label">
+                        <span>Career Growth</span>
+                        <span id="val-growth">10%</span>
+                    </div>
+                    <input type="range" id="weight-growth" min="0" max="100" value="10" class="weight-slider">
+                </div>
+                <div class="weight-item">
+                    <div class="weight-label">
+                        <span>Behavioral Signals</span>
+                        <span id="val-behavioral">15%</span>
+                    </div>
+                    <input type="range" id="weight-behavioral" min="0" max="100" value="15" class="weight-slider">
+                </div>
+                <div class="weight-item">
+                    <div class="weight-label">
+                        <span>Logistics Match</span>
+                        <span id="val-logistics">5%</span>
+                    </div>
+                    <input type="range" id="weight-logistics" min="0" max="100" value="5" class="weight-slider">
+                </div>
+            </div>
+
+            <div class="dataset-mode">
+                <label class="switch-container">
+                    <input type="checkbox" id="full-dataset-toggle">
+                    <span class="switch-slider"></span>
+                    <span class="switch-label">Search Full 100K candidates (Takes ~2s)</span>
+                </label>
+            </div>
+
+            <!-- CTA -->
+            <button id="rank-btn" class="btn btn-primary">
+                <i class="fa-solid fa-magnifying-glass-chart"></i>
+                <span>Predict & Rank shortlists</span>
+            </button>
+        </section>
+
+        <!-- Results Panel (Right Column) -->
+        <section class="results-panel glass-panel">
+            <div class="section-header justify-between">
+                <div class="flex-align">
+                    <i class="fa-solid fa-list-ol header-icon"></i>
+                    <h2>Ranked Candidates Shortlist</h2>
+                </div>
+                <div class="results-stats" id="results-meta" style="display: none;">
+                    Total Scanned: <span id="meta-scanned">0</span> | Filtered (Honeypots): <span id="meta-filtered" class="hazard">0</span>
+                </div>
+            </div>
+
+            <!-- Search filters -->
+            <div class="filters-row" style="display: none;" id="filters-row">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="candidate-search" placeholder="Quick filter by ID, name, headline...">
+                </div>
+                <select id="filter-location">
+                    <option value="">All Locations</option>
+                    <option value="pune">Pune / Noida</option>
+                    <option value="willing">Willing to relocate</option>
+                </select>
+                <select id="filter-notice">
+                    <option value="">All Notice Periods</option>
+                    <option value="30">Sub-30 days</option>
+                    <option value="60">Sub-60 days</option>
+                </select>
+            </div>
+
+            <!-- Loader -->
+            <div class="loader-container" id="loader" style="display: none;">
+                <div class="custom-loader"></div>
+                <p>Retrieving TF-IDF index & reranking via SentenceTransformer...</p>
+            </div>
+
+            <!-- Placeholder -->
+            <div class="results-placeholder" id="placeholder">
+                <i class="fa-solid fa-brain-circuit placeholder-icon"></i>
+                <h3>Predictive AI Shortlisting Engine</h3>
+                <p>Paste a job description on the left and hit the Rank button to generate an intelligent candidate recommendation shortlist powered by local embeddings and multidimensional signals.</p>
+            </div>
+
+            <!-- Candidates List -->
+            <div class="candidates-table-container" id="table-container" style="display: none;">
+                <table class="candidates-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Rank</th>
+                            <th>Candidate Details</th>
+                            <th style="width: 100px;">Match Score</th>
+                            <th style="width: 120px;">Notice Period</th>
+                            <th>AI Recommendation Explanation</th>
+                        </tr>
+                    </thead>
+                    <tbody id="candidates-tbody">
+                        <!-- Filled by Javascript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Candidate Detailed Info Modal Overlay -->
+    <div class="modal-overlay" id="detail-modal" style="display: none;">
+        <div class="modal-card glass-panel">
+            <div class="modal-header">
+                <div class="candidate-header-info">
+                    <span class="modal-rank-badge" id="modal-rank">#1</span>
+                    <div>
+                        <h2 id="modal-name">Ira Vora</h2>
+                        <p class="modal-headline" id="modal-headline">Backend Engineer | SQL, Spark, Cloud</p>
+                    </div>
+                </div>
+                <button class="btn-close" id="modal-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="modal-grid">
+                <!-- Left Section (Scores & Explanation) -->
+                <div class="modal-details-left">
+                    <!-- Score Breakdown Card -->
+                    <div class="sub-panel">
+                        <h3>Scoring Breakdown</h3>
+                        <div class="scores-grid" id="modal-subscores">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- AI Explanation Card -->
+                    <div class="sub-panel explanation-sub-panel">
+                        <h3>AI Recruiter Reasoning</h3>
+                        <p class="modal-reasoning" id="modal-reasoning">...</p>
+                    </div>
+
+                    <!-- Experience Timeline -->
+                    <div class="sub-panel">
+                        <h3>Employment History</h3>
+                        <div class="timeline" id="modal-timeline">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Section (Metadata, Signals & Education) -->
+                <div class="modal-details-right">
+                    <div class="sub-panel">
+                        <h3>Profile Signals</h3>
+                        <div class="profile-signals-grid" id="modal-signals">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="sub-panel">
+                        <h3>Academic Qualifications</h3>
+                        <div class="edu-list" id="modal-edu">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="sub-panel">
+                        <h3>Verified Skill Set</h3>
+                        <div class="tags-container" id="modal-skills-tags">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 TalentRank PoC. All rights reserved. Locally executed under sandboxed environments.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

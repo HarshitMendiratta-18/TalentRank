@@ -1,0 +1,43 @@
+team_name: "Antigravity-Ranker"
+
+primary_contact:
+  name: "Antigravity AI"
+  email: "antigravity@example.com"
+  phone: "+91-9999999999"
+
+team_members:
+  - name: "Antigravity Developer"
+    email: "antigravity@example.com"
+    role: "ML Architect"
+
+github_repo: "https://github.com/Antigravity/AI-Recruiter"
+sandbox_link: "https://huggingface.co/spaces/Antigravity/redrob-ranker"
+reproduce_command: "python rank.py --candidates ./candidates.jsonl --out ./submission.csv"
+
+compute:
+  platform: "Local Windows Sandbox"
+  cpu_cores: 8
+  ram_gb: 16
+  python_version: "3.13.9"
+  os: "Windows 11"
+  uses_gpu_for_inference: false
+  has_network_during_ranking: false
+  pre_computation_required: true
+  pre_computation_time_minutes: 2
+
+ai_tools_used:
+  - "Gemini"
+  - "Cursor"
+
+ai_usage_summary: |
+  Used Gemini 3.5 Flash for code generation and workspace automation. All candidate signals, filtering, scoring metrics, and UI layouts were engineered and customized offline without network leakage.
+
+methodology_summary: |
+  A two-stage retrieve-and-rerank engine. Stage 1 retrieves the top 1000 candidates on the fly using a TF-IDF index. Stage 2 reranks them using a cached local SentenceTransformer (all-MiniLM-L6-v2) for deep semantic matching. Incorporates strict anomaly filtering to neutralize honeypot trap candidates, and weights multi-dimensional cues (skills, YoE, growth, response rates) for optimal recruiter fit.
+
+declarations:
+  read_submission_spec: true
+  code_is_original_work: true
+  no_collusion: true
+  honeypot_check_done: true
+  reproduction_tested: true
